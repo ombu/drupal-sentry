@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ * Integratin with the Sentry event logging platform via the Raven-PHP library.
+ */
+
+/**
+ * Implements hook_boot().
+ */
+function sentry_boot() {
+  require dirname(__FILE__) . '/lib/raven-php/lib/Raven/Autoloader.php';
+  Raven_Autoloader::register();
+  $sentry_dsn = variable_get('sentry_dsn', FALSE);
+  if ($sentry_dsn === FALSE) {
+    return ;
+  }
+  $client = new Raven_Client($sentry_dsn);
+  $error_handler = new Raven_ErrorHandler($client);
+  $error_handler->registerExceptionHandler();
+  $error_handler->registerErrorHandler();
+  $error_handler->registerShutdownFunction();
+}
