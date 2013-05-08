@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Integratin with the Sentry event logging platform via the Raven-PHP library.
+ * Integration with the Sentry event logging platform via the Raven-PHP library.
  */
 
 /**
