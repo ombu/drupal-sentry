@@ -19,7 +19,7 @@ function sentry_boot() {
  * Implements hook_watchdog().
  */
 function sentry_watchdog($log_entry) {
-  if ($log_entry['severity'] <= WATCHDOG_ERROR) {
+  if ($log_entry['severity'] <= variable_get('sentry_severity', WATCHDOG_ERROR)) {
     $client = sentry_get_client();
     if ($client) {
       $message = t($log_entry['message'], $log_entry['variables']);
