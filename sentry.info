@@ -1,4 +1,4 @@
 name = "Sentry"
 description = "Provides integration with the Sentry event logging platform."
 package = 'Sentry'
-core = 7.x
+core = 6.x

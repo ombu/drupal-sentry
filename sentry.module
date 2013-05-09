@@ -73,7 +73,7 @@ function sentry_severity_watchdog_to_sentry($watchdog_severity) {
   sentry_require();
 
   $map = array(
-    WATCHDOG_EMERGENCY => Raven_Client::FATAL,
+    WATCHDOG_EMERG => Raven_Client::FATAL,
     WATCHDOG_ALERT => Raven_Client::ERROR,
     WATCHDOG_CRITICAL => Raven_Client::ERROR,
     WATCHDOG_ERROR => Raven_Client::ERROR,
