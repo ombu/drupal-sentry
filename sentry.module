@@ -9,7 +9,7 @@
  */
 function sentry_boot() {
   $client = sentry_get_client();
-  $error_handler = new Raven_ErrorHandler($client);
+  $error_handler = new Raven_ErrorHandler($client, TRUE);
   $error_handler->registerExceptionHandler();
   $error_handler->registerErrorHandler();
   $error_handler->registerShutdownFunction();
@@ -61,6 +61,7 @@ function sentry_get_client() {
       return FALSE;
     }
     $client = new Raven_Client($sentry_dsn);
+    $client->store_errors_for_bulk_send = TRUE;
   }
 
   return $client;
