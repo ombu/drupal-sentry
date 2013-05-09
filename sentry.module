@@ -30,14 +30,16 @@ function sentry_watchdog($log_entry) {
 
       $data = array(
         'message' => $message,
-        'level' => $client::ERROR,
+        'level' => sentry_severity_watchdog_to_sentry($log_entry['severity']),
         'sentry.interfaces.Exception' => array(
           'value' => $message,
           'type' => 'watchdog',
           'module' => $stack[0]['file'] . ':' . $stack[0]['line'],
         ),
         'extra' => array(
-          'watchdog_severity' => $severity_levels[$log_entry['severity']],
+          'watchdog type' => $log_entry['type'],
+          'watchdog severity' => $severity_levels[$log_entry['severity']],
+          'watchdog uid' => $log_entry['uid'],
         ),
       );
 
@@ -53,8 +55,7 @@ function sentry_get_client() {
   static $client = FALSE;
 
   if ($client === FALSE) {
-    require dirname(__FILE__) . '/lib/raven-php/lib/Raven/Autoloader.php';
-    Raven_Autoloader::register();
+    sentry_require();
     $sentry_dsn = variable_get('sentry_dsn', FALSE);
     if ($sentry_dsn === FALSE) {
       return FALSE;
@@ -63,4 +64,38 @@ function sentry_get_client() {
   }
 
   return $client;
+}
+
+/**
+ * Maps watchdog severity levels to Sentry severity levels.
+ */
+function sentry_severity_watchdog_to_sentry($watchdog_severity) {
+  sentry_require();
+
+  $map = array(
+    WATCHDOG_EMERGENCY => Raven_Client::FATAL,
+    WATCHDOG_ALERT => Raven_Client::ERROR,
+    WATCHDOG_CRITICAL => Raven_Client::ERROR,
+    WATCHDOG_ERROR => Raven_Client::ERROR,
+    WATCHDOG_WARNING => Raven_Client::WARNING,
+  );
+
+  if (isset($map[$watchdog_severity])) {
+    return $map[$watchdog_severity];
+  }
+
+  return Raven_Client::WARNING;
+}
+
+/**
+ * Get Sentry.
+ */
+function sentry_require() {
+  static $required = FALSE;
+
+  if (!$required) {
+    require_once dirname(__FILE__) . '/lib/raven-php/lib/Raven/Autoloader.php';
+    Raven_Autoloader::register();
+    $required = TRUE;
+  }
 }
