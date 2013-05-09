@@ -8,15 +8,60 @@
  * Implements hook_boot().
  */
 function sentry_boot() {
-  require dirname(__FILE__) . '/lib/raven-php/lib/Raven/Autoloader.php';
-  Raven_Autoloader::register();
-  $sentry_dsn = variable_get('sentry_dsn', FALSE);
-  if ($sentry_dsn === FALSE) {
-    return ;
-  }
-  $client = new Raven_Client($sentry_dsn);
+  $client = sentry_get_client();
   $error_handler = new Raven_ErrorHandler($client);
   $error_handler->registerExceptionHandler();
   $error_handler->registerErrorHandler();
   $error_handler->registerShutdownFunction();
+      $debug_backtrace;
+}
+
+/**
+ * Implements hook_watchdog().
+ */
+function sentry_watchdog($log_entry) {
+  if ($log_entry['severity'] >= WATCHDOG_ERROR) {
+    $client = sentry_get_client();
+    if ($client) {
+      $message = t($log_entry['message'], $log_entry['variables']);
+      $severity_levels = watchdog_severity_levels();
+
+      // Get trace of original watchdog call.
+      $stack = array_slice(debug_backtrace(), 3);
+
+      $data = array(
+        'message' => $message,
+        'level' => $client::ERROR,
+        'sentry.interfaces.Exception' => array(
+          'value' => $message,
+          'type' => 'watchdog',
+          'module' => $stack[0]['file'] . ':' . $stack[0]['line'],
+        ),
+        'extra' => array(
+          'watchdog_severity' => $severity_levels[$log_entry['severity']],
+        ),
+      );
+
+      $client->capture($data, $stack);
+    }
+  }
+}
+
+/**
+ * Returns a sentry client.
+ */
+function sentry_get_client() {
+  static $client = FALSE;
+
+  if ($client === FALSE) {
+    require dirname(__FILE__) . '/lib/raven-php/lib/Raven/Autoloader.php';
+    Raven_Autoloader::register();
+    $sentry_dsn = variable_get('sentry_dsn', FALSE);
+    if ($sentry_dsn === FALSE) {
+      return FALSE;
+    }
+    $client = new Raven_Client($sentry_dsn);
+  }
+
+  return $client;
 }
