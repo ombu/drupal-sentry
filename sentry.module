@@ -9,10 +9,12 @@
  */
 function sentry_boot() {
   $client = sentry_get_client();
-  $error_handler = new Raven_ErrorHandler($client, TRUE);
-  $error_handler->registerExceptionHandler();
-  $error_handler->registerErrorHandler();
-  $error_handler->registerShutdownFunction();
+  if ($client) {
+    $error_handler = new Raven_ErrorHandler($client, TRUE);
+    $error_handler->registerExceptionHandler();
+    $error_handler->registerErrorHandler();
+    $error_handler->registerShutdownFunction();
+  }
 }
 
 /**
