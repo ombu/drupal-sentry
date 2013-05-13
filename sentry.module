@@ -24,6 +24,9 @@ function sentry_watchdog($log_entry) {
   if ($log_entry['severity'] <= variable_get('sentry_severity', WATCHDOG_ERROR)) {
     $client = sentry_get_client();
     if ($client) {
+      if (!is_array($log_entry['variables'])) {
+        $log_entry['variables'] = array();
+      }
       $message = t($log_entry['message'], $log_entry['variables']);
       $message = strip_tags($message);
       $severity_levels = watchdog_severity_levels();
