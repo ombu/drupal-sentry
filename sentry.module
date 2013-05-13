@@ -23,6 +23,7 @@ function sentry_watchdog($log_entry) {
     $client = sentry_get_client();
     if ($client) {
       $message = t($log_entry['message'], $log_entry['variables']);
+      $message = strip_tags($message);
       $severity_levels = watchdog_severity_levels();
 
       // Get trace of original watchdog call.
@@ -39,7 +40,7 @@ function sentry_watchdog($log_entry) {
         'extra' => array(
           'watchdog type' => $log_entry['type'],
           'watchdog severity' => $severity_levels[$log_entry['severity']],
-          'watchdog uid' => isset($log_entry['uid']) ? $log_entry['uid'] : 0,
+          'watchdog uid' => isset($log_entry['user']) ? $log_entry['user']->uid : 0,
         ),
       );
 
