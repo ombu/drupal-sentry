@@ -101,7 +101,7 @@ function sentry_require() {
   static $required = FALSE;
 
   if (!$required) {
-    require_once dirname(__FILE__) . '/lib/raven-php/lib/Raven/Autoloader.php';
+    require_once dirname(__FILE__) . '/lib/sentry-php/lib/Raven/Autoloader.php';
     Raven_Autoloader::register();
     $required = TRUE;
   }
