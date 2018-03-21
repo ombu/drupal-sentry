@@ -34,6 +34,11 @@ function sentry_watchdog($log_entry) {
       // Get trace of original watchdog call.
       $stack = array_slice(debug_backtrace(), 3);
 
+      $module = $stack[0]['file'];
+      if (isset($stack[0]['line'])) {
+        $module .= ':' . $stack[0]['line'];
+      }
+
       $data = array(
         'message' => $message,
         'level' => sentry_severity_watchdog_to_sentry($log_entry['severity']),
