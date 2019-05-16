@@ -34,7 +34,14 @@ function sentry_watchdog($log_entry) {
       // Get trace of original watchdog call.
       $stack = array_slice(debug_backtrace(), 3);
 
-      $module = $stack[0]['file'];
+      $module = '';
+
+      // Set a file name if provided.
+      if (isset($stack[0]['file'])) {
+        $module .= $stack[0]['file'];
+      }
+
+      // Set a line nuumber if provided.
       if (isset($stack[0]['line'])) {
         $module .= ':' . $stack[0]['line'];
       }
@@ -45,7 +52,7 @@ function sentry_watchdog($log_entry) {
         'sentry.interfaces.Exception' => array(
           'value' => $message,
           'type' => 'watchdog',
-          'module' => $stack[0]['file'] . ':' . $stack[0]['line'],
+          'module' => $module,
         ),
         'extra' => array(
           'watchdog type' => $log_entry['type'],
